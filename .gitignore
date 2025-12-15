@@ -1,0 +1,46 @@
+# Python bytecode - auto-generated, don't need in git
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments - these are rebuilt from environment.yml
+env/
+venv/
+ENV/
+
+# Jupyter autosave files - temporary, don't need tracking
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# Conda package cache - local build artifacts
+*.conda
+*.tar.bz2
+
+# ML MODEL FILES - often 1-10GB each!
+models/*.pth
+models/*.pt
+models/*.ckpt
+models/*.safetensors
+data/raw/*
+data/processed/*
+*.h5
+*.hdf5
+
+# Keep folder structure but not contents
+!models/.gitkeep
+!data/.gitkeep
+
+# Compressed archives - usually datasets or downloads
+*.zip
+*.tar.gz
+*.bin
+
+# IDE settings - personal preferences, not project requirements
+.vscode/settings.json
+.idea/
+
+# OS junk files
+.DS_Store
+Thumbs.db
