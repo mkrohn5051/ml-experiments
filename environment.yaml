@@ -1,17 +1,17 @@
 name: cuda-diffusion
 channels:
-  - pytorch-nightly
-  - nvidia
   - conda-forge
   - defaults
 dependencies:
   - python=3.11
   - pip
   - pip:
+    # PyTorch nightly with CUDA 12.8 - using --extra-index-url instead
+    - --extra-index-url https://download.pytorch.org/whl/nightly/cu128
     - torch
     - torchvision
     - torchaudio
-    - --index-url https://download.pytorch.org/whl/nightly/cu128
+    # Now these can come from regular PyPI
     - diffusers
     - transformers
     - accelerate
