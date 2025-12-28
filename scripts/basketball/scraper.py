@@ -180,24 +180,105 @@ def scrape_multiple_teams(school_slugs, year=2026, delay=2):
     
     return all_data
 
-
-# Test function
-if __name__ == "__main__":
+def scrape_all_d1_teams(year=2025, delay=2):
     """
-    This code runs when you execute the script directly.
-    Perfect for testing!
+    Scrape game logs for ALL D1 teams.
+    
+    Parameters:
+    -----------
+    year : int
+        Season year to scrape
+    delay : int
+        Seconds to wait between requests (be polite!)
+        
+    Returns:
+    --------
+    dict
+        Dictionary mapping school_slug -> DataFrame
     """
     
-    print("🏀 Basketball Game Log Scraper - Test Mode")
+    # Load the team list
+    teams_df = pd.read_csv('data/basketball/raw/d1_teams.csv')
+    
+    print(f"🏀 MASS SCRAPING: {len(teams_df)} D1 Teams")
+    print(f"   Year: {year}")
+    print(f"   Delay: {delay}s between requests")
     print("=" * 60)
     
-    # Test with Iowa State
-    test_slug = "iowa-state"
+    all_data = {}
+    success_count = 0
+    fail_count = 0
     
-    df = scrape_team_gamelogs(test_slug, year=2025)
+    for i, row in teams_df.iterrows():
+        school_name = row['School']
+        slug = row['slug']
+        
+        print(f"\n[{i+1}/{len(teams_df)}] {school_name} ({slug})")
+        
+        df = scrape_team_gamelogs(slug, year)
+        
+        if df is not None:
+            all_data[slug] = df
+            success_count += 1
+            print(f"   ✅ Success ({len(df)} games)")
+        else:
+            fail_count += 1
+            print(f"   ❌ Failed")
+        
+        # Be polite - wait between requests
+        if i < len(teams_df) - 1:
+            time.sleep(delay)
     
-    if df is not None:
-        print(f"\n📊 Preview of scraped data:")
-        print(df.head(10))
-        print(f"\n📈 DataFrame shape: {df.shape}")
-        print(f"📋 Columns: {list(df.columns)}")
+    print(f"\n{'='*60}")
+    print(f"🏀 SCRAPING COMPLETE!")
+    print(f"   ✅ Success: {success_count}/{len(teams_df)} teams")
+    print(f"   ❌ Failed: {fail_count}/{len(teams_df)} teams")
+    
+    return all_data
+
+# Remove the duplicate "if __name__ == "__main__":" section at the bottom
+# Keep only this one:
+
+if __name__ == "__main__":
+    """
+    Run the mass scraper for all D1 teams
+    """
+    
+    import sys
+    
+    # Check if user wants to scrape all teams
+    if len(sys.argv) > 1 and sys.argv[1] == '--all':
+        print("🚀 STARTING MASS SCRAPE OF ALL 365 D1 TEAMS!")
+        print("⏱️  This will take approximately 12-15 minutes (365 teams × 2s delay)")
+        print("\nPress Ctrl+C to cancel...\n")
+        
+        time.sleep(3)  # Give user a chance to cancel
+        
+        all_data = scrape_all_d1_teams(year=2025, delay=2)
+        
+        # Combine all teams into one big dataframe
+        print(f"\n📊 Combining all data...")
+        combined_df = pd.concat(all_data.values(), ignore_index=True)
+        
+        print(f"✅ Total games scraped: {len(combined_df):,}")
+        print(f"   Saving to: data/basketball/raw/all_teams_gamelogs.csv")
+        
+        combined_df.to_csv('data/basketball/raw/all_teams_gamelogs.csv', index=False)
+        
+        print(f"\n🎉 COMPLETE! All D1 team data saved!")
+        
+    else:
+        # Test mode - just Iowa State
+        print("🏀 Basketball Game Log Scraper - Test Mode")
+        print("=" * 60)
+        print("To scrape ALL teams, run: python scripts/basketball/scraper.py --all")
+        print("\nRunning test scrape on Iowa State...\n")
+        
+        test_slug = "iowa-state"
+        df = scrape_team_gamelogs(test_slug, year=2025)
+        
+        if df is not None:
+            print(f"\n📊 Preview of scraped data:")
+            print(df.head(10))
+            print(f"\n📈 DataFrame shape: {df.shape}")
+            print(f"📋 Columns: {list(df.columns)}")
